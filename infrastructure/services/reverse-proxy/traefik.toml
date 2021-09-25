@@ -1,0 +1,16 @@
+[api]
+    dashboard = true
+    insecure = true
+
+[entryPoints]
+    [entryPoints.http]
+        address = ":80"
+
+[providers]
+    [providers.docker]
+        watch = true
+        exposedByDefault = false
+        network = "withalex_proxy"
+
+[log]
+    level = "DEBUG"

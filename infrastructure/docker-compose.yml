@@ -1,0 +1,46 @@
+version: '3.7'
+
+networks:
+  withalex_proxy:
+    external: true
+
+services:
+  withalex_reverse_proxy:
+    container_name: "withalex_reverse_proxy"
+    image: traefik:v2.4
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.withalex_reverse_proxy.rule=Host(`reverse-proxy.withalex.localhost`)"
+      - "traefik.http.routers.withalex_reverse_proxy.entrypoints=http"
+      - "traefik.http.services.withalex_reverse_proxy.loadbalancer.server.port=8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./services/reverse-proxy/traefik.toml:/etc/traefik/traefik.toml
+    restart: always
+    ports:
+      - "80:80"
+      - "8080:8080"
+    networks:
+      withalex_proxy:
+        aliases:
+          - home.withalex.localhost
+  withalex_home:
+    container_name: "withalex_home"
+    image: node:latest
+    user: "node"
+    working_dir: /home/node/app
+    volumes:
+      - ../applications/home:/home/node/app
+    environment:
+      - NODE_ENV=development
+      - HOST=0.0.0.0
+    command: "yarn dev"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.withalex_home.rule=Host(`home.withalex.localhost`)"
+      - "traefik.http.routers.withalex_home.entrypoints=http"
+      - "traefik.http.services.withalex_home.loadbalancer.server.port=3000"
+    networks:
+      - withalex_proxy
+
+
