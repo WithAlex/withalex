@@ -26,7 +26,7 @@ services:
           - home.withalex.localhost
   withalex_home:
     container_name: "withalex_home"
-    image: node:latest
+    image: node:16
     user: "node"
     working_dir: /home/node/app
     volumes:
@@ -34,7 +34,7 @@ services:
     environment:
       - NODE_ENV=development
       - HOST=0.0.0.0
-    command: "yarn dev"
+    command: bash -c "yarn && yarn dev"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.withalex_home.rule=Host(`home.withalex.localhost`)"
